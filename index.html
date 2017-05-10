@@ -1,0 +1,172 @@
+﻿<!DOCTYPE html>
+<html>
+	<head>
+		<title>Hello, WebVR! - A-Frame</title>
+		<meta name="description" content="Hello, WebVR! - A-Frame">
+			<script src="aframe.min.js"></script>
+			<script src="cannon.min.js"></script>
+
+			<script src="aframe-physics-system.min.js"></script>
+			<script src="components/intersect-color-change.js"></script>
+			<script src="components/raycaster-helper.js"></script>
+			<script src="components/collider-check.js"></script>
+	</head>
+
+		<body>
+			<a-scene physics="debug: true;">
+
+				<a-assets>
+			
+			    </a-assets>
+
+				<a-plane position="0 0 0" rotation="-90 0 0" width="16" height="16" color="#7BC8A4" static-body></a-plane>
+
+				<!-- korytarz -->
+				<a-entity position="0 0 0">
+					<a-box position="-2 2 0" id="box1"  material="color: cyan; opacity: 0.4; shader: flat" depth="4" collider-check height="4" width="0.5" rotation="0 0 0" color="red" intersect-color-change static-body></a-box>
+					<a-box position=" 2 2 0" id="box2" class="collidable" material="color: cyan; opacity: 0.4; shader: flat" depth="4" collider-check height="4" width="0.5" rotation="0 0 0" color="red" intersect-color-change static-body></a-box>
+					<a-box position=" 0 4 0" id="box3" class="collidable" material="color: cyan; opacity: 0.4; shader: flat" depth="4" collider-check height="4" width="0.5" rotation="0 0 90" color="red" intersect-color-change static-body></a-box>
+				</a-entity>
+				
+				<a-box position="-2 2 -4" depth="4" height="4" width="0.5" rotation="0 0 0" color="cyan"></a-box>
+				<a-box position=" 2 2 -4" depth="4" height="4" width="0.5" rotation="0 0 0" color="cyan"></a-box>
+				<a-box position=" 0 4 -4" depth="4" height="4" width="0.5" rotation="0 0 90" color="cyan"></a-box>
+
+				<!-- komnata -->
+
+				<a-box position="-4 2 -6" depth="4" height="4" width="0.5" rotation="0 90 0" color="cyan"></a-box>
+				<a-box position="4 2 -6" depth="4" height="4" width="0.5" rotation="0 90 0" color="cyan"></a-box>
+
+				<a-box position="-12 2 -6" depth="4" height="4" width="0.5" rotation="0 90 0" color="cyan"></a-box>
+				<a-box position="12 2 -6" depth="4" height="4" width="0.5" rotation="0 90 0" color="cyan"></a-box>
+
+				<a-box position="-12 2 -8" depth="4" height="4" width="0.5" rotation="0 0 0" color="red"></a-box>
+				<a-box position="12 2 -8" depth="4" height="4" width="0.5" rotation="0 0 0" color="red"></a-box>
+
+				<a-box position="-12 2 -16" depth="4" height="4" width="0.5" rotation="0 0 0" color="red"></a-box>
+				<a-box position="12 2 -16" depth="4" height="4" width="0.5" rotation="0 0 0" color="red"></a-box>
+
+				<a-box position="-4 2 -20" depth="4" height="4" width="0.5" rotation="0 90 0" color="cyan"></a-box>
+				<a-box position="4 2 -20" depth="4" height="4" width="0.5" rotation="0 90 0" color="cyan"></a-box>
+
+				<a-box position="-8 2 -20" depth="4" height="4" width="0.5" rotation="0 90 0" color="cyan"></a-box>
+				<a-box position="8 2 -20" depth="4" height="4" width="0.5" rotation="0 90 0" color="cyan"></a-box>
+
+				<a-box position="-12 2 -18" depth="4" height="4" width="0.5" rotation="0 90 0" color="cyan"></a-box>
+				<a-box position="12 2 -20" depth="4" height="4" width="0.5" rotation="0 90 0" color="cyan"></a-box>
+
+
+				<a-entity position="1 1 0" rotation="0 -90 0"
+                text="anchor: center; width: 1.5; color: black; value: sciana 1">
+				</a-entity>
+
+				<a-entity>
+					<a-box id="mybox" position="0 1.25 0" dynamic-body color="#EF2D5E"></a-sphere>
+
+					<a-animation attribute="rotation"
+               dur="10000"
+               fill="forwards"
+               to="0 360 0"
+               repeat="indefinite"></a-animation>
+
+				</a-entity>
+				<!--
+				<a-cylinder position="1 0.75 -3" radius="0.5" height="1.5" color="#FFC65D"></a-cylinder>
+				-->
+				<a-sky color="#ECECEC"></a-sky>
+				
+				
+				<a-entity id="mycamera" rotation="0 0 0" position="0 0 6">
+					<a-entity id = "myraycaster" raycaster-helper material="opacity: 1" raycaster="objects: .collidable" position="0 1 0" rotation="0 0 0">
+					</a-entity>
+					
+					<a-box position=" 0 0 -2" depth="0.5" height="1.8" width="0.5" rotation="0 0 0" color="green"></a-box>
+					
+					<a-camera wasd-controls-enabled="false"></a-camera>
+				</a-entity>
+								<a-plane position="0 3 2" rotation="0 0 0" width="0.5" height="0.5" color="yellow" ></a-plane>
+
+			</a-scene>
+
+		</body>
+		<script>
+		var world, mass, body, shape, timeStep=1/60,
+         camera, scene, renderer, geometry, material, mesh;
+		 
+		function initCannon() {
+
+          world = new CANNON.World();
+          world.gravity.set(0,0,0);
+          world.broadphase = new CANNON.NaiveBroadphase();
+          world.solver.iterations = 10;
+
+          shape = new CANNON.Box(new CANNON.Vec3(1,1,1));
+          mass = 1;
+          body = new CANNON.Body({
+            mass: 1
+          });
+          body.addShape(shape);
+          body.angularVelocity.set(0,10,0);
+          body.angularDamping = 0.5;
+          world.addBody(body);
+      }		
+		
+		initCannon();
+		
+    var cam = document.getElementById("mycamera")
+    var camPos = cam.getAttribute("position");
+	var camRot = cam.getAttribute("rotation");
+	var myBox = document.getElementById("myBox");		
+	
+    document.onkeydown = function(e) {
+    switch (e.keyCode) {
+        case 37:
+			camPos.x--;
+			console.log("left");
+			cam.setAttribute("position", camPos);
+            //alert('left');
+            break;
+        case 38:
+        camPos.z--;
+        console.log("up");
+        cam.setAttribute("position", camPos);
+            //alert('up');
+			
+			myBox.body.applyImpulse(
+			          new CANNON.Vec3(0, 1, -1),
+					  new CANNON.Vec3().copy(el.getComputedAttribute('position'))
+			
+			);
+			
+            break;
+        case 39:
+        camPos.x++;
+        console.log("right");
+        cam.setAttribute("position", camPos);
+            //alert('right');
+            break;
+        case 40:
+        camPos.z++;
+        console.log("down");
+        cam.setAttribute("position", camPos);
+            //alert('down');
+            break;
+		case 90:
+			camRot.y -= 10;
+			console.log("Rotleft");
+			cam.setAttribute("rotation", camRot);
+            //alert('left');
+            break;
+		case 88:
+			camRot.y += 10;
+			console.log("RotRight");
+			cam.setAttribute("rotation", camRot);
+            //alert('left');
+            break;
+    }
+			//console.log(camPos);
+
+};
+		</script>
+	</html>
+	
